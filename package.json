@@ -1,0 +1,20 @@
+{
+  "name": "studyling-platform",
+  "version": "1.0.0",
+  "description": "Studyling Learning Platform - Progressive Web App (PWA) with Neon Tech PostgreSQL",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "pwa",
+    "learning-platform",
+    "neon-tech",
+    "postgresql",
+    "study-timer",
+    "active-recall"
+  ],
+  "author": "Studyling Team",
+  "license": "MIT"
+}

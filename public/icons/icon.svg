@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="128" fill="#1a1c1c"/>
+  <!-- Circular ambient glow -->
+  <circle cx="256" cy="256" r="160" fill="none" stroke="#2a2c2c" stroke-width="8"/>
+  <circle cx="256" cy="256" r="160" fill="none" stroke="#fdc425" stroke-width="8" stroke-dasharray="300 700" stroke-linecap="round"/>
+  <!-- Center lightning bolt / study mark -->
+  <path d="M272 136L192 272H256L240 376L320 240H256L272 136Z" fill="#ffffff" stroke="#fdc425" stroke-width="4" stroke-linejoin="round"/>
+  <!-- Small secondary dot -->
+  <circle cx="340" cy="180" r="12" fill="#fdc425"/>
+</svg>

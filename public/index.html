@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="de" class="h-full">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Studyling Learning Platform</title>
+  
+  <!-- PWA Meta Tags -->
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#f9f9f9">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="studyling">
+  <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+
+  <!-- Google Fonts: Inter, Plus Jakarta Sans, JetBrains Mono & Material Symbols -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "error": "#ba1a1a",
+            "secondary": "#785a00",
+            "tertiary": "#000000",
+            "secondary-fixed": "#ffdf9a",
+            "on-tertiary-container": "#83838c",
+            "on-error": "#ffffff",
+            "tertiary-fixed": "#e3e1ec",
+            "on-tertiary": "#ffffff",
+            "on-secondary-fixed": "#251a00",
+            "on-tertiary-fixed": "#1a1b22",
+            "error-container": "#ffdad6",
+            "on-secondary": "#ffffff",
+            "surface-bright": "#f9f9f9",
+            "primary-container": "#1c1b1d",
+            "surface-container-high": "#e8e8e8",
+            "inverse-primary": "#c8c6c8",
+            "tertiary-container": "#1a1b22",
+            "on-primary-fixed-variant": "#474649",
+            "surface-container-low": "#f3f3f4",
+            "surface-dim": "#dadada",
+            "on-background": "#1a1c1c",
+            "secondary-fixed-dim": "#f7be1d",
+            "inverse-surface": "#2f3131",
+            "outline-variant": "#c8c5ca",
+            "surface-container-lowest": "#ffffff",
+            "on-tertiary-fixed-variant": "#46464e",
+            "on-secondary-container": "#6d5200",
+            "on-primary": "#ffffff",
+            "on-error-container": "#93000a",
+            "on-primary-fixed": "#1c1b1d",
+            "primary": "#000000",
+            "primary-fixed-dim": "#c8c6c8",
+            "primary-fixed": "#e5e1e4",
+            "tertiary-fixed-dim": "#c6c5cf",
+            "on-primary-container": "#858386",
+            "on-secondary-fixed-variant": "#5a4300",
+            "on-surface-variant": "#47464a",
+            "on-surface": "#1a1c1c",
+            "outline": "#78767b",
+            "inverse-on-surface": "#f0f1f1",
+            "surface": "#f9f9f9",
+            "surface-variant": "#e2e2e2",
+            "surface-container-highest": "#e2e2e2",
+            "surface-container": "#eeeeee",
+            "secondary-container": "#fdc425",
+            "surface-tint": "#5f5e60",
+            "background": "#f9f9f9"
+          },
+          fontFamily: {
+            "body-sm": ["Inter", "sans-serif"],
+            "code": ["JetBrains Mono", "monospace"],
+            "label-sm": ["Inter", "sans-serif"],
+            "title-md": ["Inter", "sans-serif"],
+            "headline-sm": ["Plus Jakarta Sans", "sans-serif"],
+            "headline-md": ["Plus Jakarta Sans", "sans-serif"],
+            "headline-lg": ["Plus Jakarta Sans", "sans-serif"],
+            "headline-lg-mobile": ["Plus Jakarta Sans", "sans-serif"],
+            "body-lg": ["Inter", "sans-serif"],
+            "label-md": ["Inter", "sans-serif"],
+            "body-md": ["Inter", "sans-serif"],
+            "display-xl-mobile": ["Plus Jakarta Sans", "sans-serif"]
+          },
+          spacing: {
+            "margin-mobile": "1.25rem",
+            "space-sm": "0.5rem",
+            "space-md": "1rem",
+            "space-lg": "1.5rem",
+            "space-xl": "2.5rem",
+            "space-xs": "0.25rem"
+          }
+        }
+      }
+    };
+  </script>
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body class="bg-surface text-on-surface antialiased flex justify-center min-h-screen">
+
+  <!-- Mobile App Frame Container (Centered for Desktop & Native for Mobile) -->
+  <div class="app-viewport w-full max-w-md mx-auto shadow-2xl relative flex flex-col bg-surface border-x border-surface-container-high/60">
+
+    <!-- PWA Install Banner -->
+    <div id="pwa-install-banner" class="hidden bg-primary text-on-primary px-4 py-2.5 flex items-center justify-between z-50 text-xs">
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-[18px] text-secondary-container">download</span>
+        <span>Studyling als App installieren</span>
+      </div>
+      <button id="btn-install-pwa" class="bg-secondary-container text-on-secondary-fixed px-3 py-1 rounded font-bold uppercase tracking-wider text-[10px]">
+        Installieren
+      </button>
+    </div>
+
+    <!-- Top Fixed Sticky Header (Matching Stitch Specification) -->
+    <header id="main-header" class="sticky top-0 w-full z-40 bg-surface/90 backdrop-blur-xl pt-safe shadow-[0_1px_6px_rgba(0,0,0,0.02)] border-b border-surface-container-high/40 transition-opacity">
+      <div class="h-14 px-margin-mobile flex items-center justify-between">
+        <!-- Logo -->
+        <div class="flex items-center gap-1.5 cursor-pointer" onclick="location.hash='kurse'">
+          <span class="font-headline-sm text-[20px] tracking-tight text-on-surface font-extrabold lowercase">studyling</span>
+          <span id="neon-status-badge" class="w-2 h-2 rounded-full bg-secondary-container transition-colors" title="Neon Tech Status"></span>
+        </div>
+
+        <!-- Right Side: Streak & Profile -->
+        <div class="flex items-center gap-3">
+          <!-- Streak Indicator -->
+          <div class="flex items-center gap-1 bg-surface-container-low px-2.5 py-1 rounded-full border border-surface-container-high/60" title="Aktueller Lern-Streak">
+            <span class="material-symbols-outlined text-secondary text-[16px] material-symbols-fill">local_fire_department</span>
+            <span id="user-streak-counter" class="font-code text-[12px] font-semibold text-on-surface">12</span>
+          </div>
+
+          <!-- XP Counter -->
+          <div class="hidden sm:flex items-center bg-surface-container-low px-2 py-1 rounded-full">
+            <span id="user-xp-counter" class="font-code text-[11px] font-medium text-on-surface-variant">1420 EP</span>
+          </div>
+
+          <!-- Profile / Settings Button (Triggers Neon Tech DB modal) -->
+          <button id="btn-profile-settings" class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface hover:bg-surface-container-high transition-colors" title="Neon Tech Datenbank & Profil" type="button">
+            <span class="material-symbols-outlined text-[18px]">person</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 w-full px-margin-mobile pb-28 pt-2">
+
+      <!-- =================================================================== -->
+      <!-- SCREEN 2: Meine Kurse & Grundlagenfächer (Default View)            -->
+      <!-- =================================================================== -->
+      <section id="screen-kurse" class="screen-view active flex-col w-full">
+        <!-- Header & Filter Row -->
+        <div class="pt-2 pb-4">
+          <div class="flex items-baseline justify-between mb-3">
+            <h1 class="font-headline-lg-mobile text-[24px] text-on-surface tracking-tight font-extrabold">
+              Meine Kurse
+            </h1>
+            <span class="font-code text-label-sm text-on-surface-variant font-medium">02/05 AKTIV</span>
+          </div>
+
+          <!-- Filter Pills -->
+          <div class="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+            <button class="course-filter-btn px-3 py-1 rounded-full bg-primary text-on-primary font-label-md text-label-sm flex items-center gap-1.5 transition-all text-[12px]" data-filter="all">
+              <span class="w-1.5 h-1.5 rounded-full bg-secondary-container"></span>
+              <span>Alle</span>
+            </button>
+            <button class="course-filter-btn px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant hover:text-on-surface font-label-md text-label-sm transition-all text-[12px]" data-filter="active">
+              <span>Aktiv (2)</span>
+            </button>
+            <button class="course-filter-btn px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant hover:text-on-surface font-label-md text-label-sm transition-all text-[12px]" data-filter="catalog">
+              <span>Katalog</span>
+            </button>
+            <button class="course-filter-btn px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant hover:text-on-surface font-label-md text-label-sm transition-all text-[12px]" data-filter="archived">
+              <span>Archiv</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Editorial Section Header -->
+        <div class="pb-2 pt-2 flex items-center justify-between border-b border-surface-container-high/60">
+          <span class="font-label-sm text-[11px] uppercase tracking-wider text-on-surface-variant font-semibold">Im Fortschritt</span>
+          <span class="font-code text-label-sm text-[11px] text-on-surface-variant">Q2 • 2025</span>
+        </div>
+
+        <!-- Dynamic Course List -->
+        <div id="active-courses-list" class="flex flex-col gap-1 mt-2">
+          <!-- Filled dynamically by app.js from Neon client -->
+        </div>
+
+        <!-- Academic Portal Sub-Curricula Banner -->
+        <div class="mt-8 p-4 bg-surface-container-lowest rounded-xl border border-surface-container-high flex flex-col gap-2">
+          <div class="flex items-center justify-between">
+            <span class="font-label-sm text-[11px] uppercase tracking-wider text-on-surface-variant font-semibold">Akademisches Portal</span>
+            <span class="font-code text-[11px] text-on-surface-variant">Sem. 1 / 2025</span>
+          </div>
+          <h2 class="font-headline-sm text-[17px] font-bold text-on-surface">Grundlagenfächer & Module</h2>
+          <p class="font-body-sm text-[13px] text-on-surface-variant">
+            Strukturierte Basis-Curricula zur Vorbereitung auf universitäre Kernprüfungen.
+          </p>
+          <div class="mt-1 flex items-center gap-2">
+            <button onclick="location.hash='pfad'" class="px-3 py-1.5 rounded-full bg-surface-container-high text-on-surface text-xs font-semibold hover:bg-surface-container transition-colors flex items-center gap-1">
+              <span>Lernpfad öffnen</span>
+              <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- SCREEN 3: Lernpfad: Mathematik (Ultra-Minimal)                     -->
+      <!-- =================================================================== -->
+      <section id="screen-pfad" class="screen-view flex-col w-full">
+        <!-- Section Header -->
+        <div class="pt-2 pb-5 border-b border-surface-container-high/60">
+          <div class="flex items-center justify-between text-on-surface-variant font-code text-label-sm mb-1">
+            <span class="text-[12px] font-semibold text-secondary">Mathematik / Abschnitt 01</span>
+            <span id="path-progress-pct" class="text-[12px] font-bold text-on-surface">25%</span>
+          </div>
+          <h1 class="font-headline-lg-mobile text-[22px] font-extrabold text-on-surface tracking-tight">
+            Vektoren & Matrizen
+          </h1>
+          <p class="font-body-sm text-[13px] text-on-surface-variant mt-1">
+            Grundlagen der Linearen Algebra für ingenieur- und naturwissenschaftliche Studiengänge.
+          </p>
+          <!-- Progress Bar -->
+          <div class="w-full h-1 bg-surface-container-highest rounded-full overflow-hidden mt-3">
+            <div id="path-progress-bar" class="h-full bg-secondary-container rounded-full transition-all duration-300" style="width: 25%"></div>
+          </div>
+        </div>
+
+        <!-- Learning Path Sequential Nodes -->
+        <div id="learning-path-nodes" class="flex flex-col gap-3 mt-4">
+          <!-- Filled dynamically by app.js from Neon client -->
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- SCREEN 1: Lerneinheit (Ultra-Minimal Active Recall Quiz)            -->
+      <!-- =================================================================== -->
+      <section id="screen-lernen" class="screen-view flex-col w-full">
+        <!-- Micro Progress Header -->
+        <div class="flex flex-col gap-space-sm mb-4">
+          <div class="flex items-center justify-between">
+            <button id="btn-quiz-close" aria-label="Lerneinheit beenden" class="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" type="button">
+              <span class="material-symbols-outlined text-[18px]">close</span>
+            </button>
+            <div class="flex items-center gap-space-xs bg-surface-container-low px-2.5 py-0.5 rounded-full border border-surface-container-high/60">
+              <span class="w-1.5 h-1.5 rounded-full bg-secondary-container"></span>
+              <span id="quiz-topic-tag" class="font-label-sm text-[11px] text-on-surface tracking-wider uppercase font-semibold">Neurobiologie</span>
+            </div>
+            <span id="quiz-counter" class="font-code text-code text-on-surface-variant text-[13px]">06<span class="text-outline-variant">/</span>10</span>
+          </div>
+
+          <!-- Hairline Progress Track -->
+          <div class="w-full h-[2px] bg-surface-container-highest rounded-full overflow-hidden">
+            <div id="quiz-progress-bar" class="h-full bg-secondary-container rounded-full w-[60%] transition-all duration-300"></div>
+          </div>
+        </div>
+
+        <!-- Central Question Section -->
+        <div class="flex flex-col pt-2 pb-4">
+          <span class="font-label-sm text-[11px] uppercase tracking-widest text-on-surface-variant font-semibold mb-1">
+            Aktives Erinnern
+          </span>
+          <h1 id="quiz-question-text" class="font-headline-lg-mobile text-[20px] font-bold text-on-surface tracking-tight leading-snug">
+            Welche Funktion erfüllt die <span class="bg-secondary-container/30 px-1 py-0.5 text-on-surface">Langzeitpotenzierung (LTP)</span> im Hippocampus?
+          </h1>
+          <p class="font-body-sm text-[13px] text-on-surface-variant mt-2">
+            Wähle die zutreffende Antwort
+          </p>
+        </div>
+
+        <!-- Interactive Selection Options -->
+        <div id="quiz-options-list" aria-label="Antwortoptionen" class="flex flex-col gap-2.5 my-2" role="radiogroup">
+          <!-- Filled dynamically by app.js -->
+        </div>
+
+        <!-- Feedback & Next Action Sheet -->
+        <div id="quiz-feedback-section" class="hidden mt-4 p-4 rounded-xl bg-surface-container-lowest border border-secondary-container/60 shadow-sm flex flex-col gap-2.5">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="material-symbols-outlined text-secondary text-[20px] material-symbols-fill">check_circle</span>
+              <span id="quiz-feedback-title" class="font-title-md font-bold text-on-surface text-[15px]">Richtig verstanden</span>
+            </div>
+            <span id="quiz-feedback-xp" class="font-code font-bold text-secondary text-[13px]">+20 EP</span>
+          </div>
+          <p id="quiz-feedback-explanation" class="text-xs text-on-surface-variant leading-relaxed">
+            Die Langzeitpotenzierung (LTP) verstärkt dauerhaft die synaptische Transmission.
+          </p>
+          <div class="flex justify-end pt-1">
+            <button id="btn-quiz-next" class="px-5 py-2 rounded-full bg-primary text-on-primary font-label-md text-xs font-semibold flex items-center gap-1.5 hover:bg-neutral-800 transition-colors shadow-sm" type="button">
+              <span>Weiter</span>
+              <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- =================================================================== -->
+      <!-- SCREEN 5: Study Timer (Ultra-Minimal)                              -->
+      <!-- =================================================================== -->
+      <section id="screen-fokus" class="screen-view flex-col w-full items-center">
+        <!-- Title & Session Meta -->
+        <div class="w-full flex flex-col pt-2 pb-4">
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-label-sm text-[11px] uppercase tracking-wider text-on-surface-variant font-semibold">Fokus-Phase</span>
+            <span class="font-code text-[11px] text-on-surface-variant">Intervall 1 von 4</span>
+          </div>
+          <h1 class="font-headline-lg-mobile text-[24px] font-extrabold text-primary tracking-tight">
+            Study Timer
+          </h1>
+        </div>
+
+        <!-- Mode Selector Pills -->
+        <div class="w-full flex items-center gap-2 overflow-x-auto no-scrollbar pb-2 mb-2">
+          <button id="mode-25" class="mode-pill flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-on-primary transition-all flex-shrink-0 text-xs font-semibold" type="button">
+            <span class="w-1.5 h-1.5 rounded-full bg-secondary-container"></span>
+            <span>25 min Pomodoro</span>
+          </button>
+          <button id="mode-50" class="mode-pill flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-low text-on-surface-variant hover:text-primary transition-all flex-shrink-0 text-xs font-medium" type="button">
+            <span>50 min Deep Work</span>
+          </button>
+          <button id="mode-5" class="mode-pill flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-surface-container-low text-on-surface-variant hover:text-primary transition-all flex-shrink-0 text-xs font-medium" type="button">
+            <span>5 min Pause</span>
+          </button>
+        </div>
+
+        <!-- Timer Core Dial -->
+        <div class="relative flex flex-col items-center justify-center py-6">
+          <div class="relative w-64 h-64 flex items-center justify-center">
+            <svg class="w-full h-full -rotate-90 transform" viewBox="0 0 256 256">
+              <!-- Track Background -->
+              <circle class="text-surface-container-highest" cx="128" cy="128" fill="transparent" r="112" stroke="currentColor" stroke-width="3"></circle>
+              <!-- Active Progress Arc -->
+              <circle id="timer-progress" class="text-secondary-container" cx="128" cy="128" fill="transparent" r="112" stroke="currentColor" stroke-dasharray="703.7" stroke-dashoffset="0" stroke-linecap="round" stroke-width="5"></circle>
+            </svg>
+            <!-- Center Text Core -->
+            <div class="absolute flex flex-col items-center justify-center text-center">
+              <span id="timer-display" class="font-display-xl-mobile text-[44px] font-bold text-primary tracking-tight font-code">25:00</span>
+              <span class="text-xs text-on-surface-variant font-medium mt-1">Intervall 1 von 4 · Fokus</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Controls: Play, Reset, Skip -->
+        <div class="flex items-center gap-4 my-4">
+          <button id="btn-reset" class="w-10 h-10 rounded-full bg-surface-container-low hover:bg-surface-container-high flex items-center justify-center text-on-surface-variant transition-colors" title="Zurücksetzen" type="button">
+            <span class="material-symbols-outlined text-[20px]">refresh</span>
+          </button>
+
+          <button id="btn-play" class="px-6 py-3 rounded-full bg-primary text-on-primary font-semibold text-sm flex items-center gap-2 hover:bg-neutral-800 transition-transform active:scale-95 shadow-md" type="button">
+            <span id="play-icon" class="material-symbols-outlined text-[20px]">play_arrow</span>
+            <span id="play-text">Fokus starten</span>
+          </button>
+
+          <button id="btn-skip" class="w-10 h-10 rounded-full bg-surface-container-low hover:bg-surface-container-high flex items-center justify-center text-on-surface-variant transition-colors" title="Überspringen" type="button">
+            <span class="material-symbols-outlined text-[20px]">skip_next</span>
+          </button>
+        </div>
+
+        <!-- DND Toggle -->
+        <div class="w-full mt-4 p-3.5 bg-surface-container-lowest rounded-xl border border-surface-container-high flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <span class="material-symbols-outlined text-on-surface-variant text-[20px]">notifications_off</span>
+            <div class="flex flex-col">
+              <span class="text-xs font-semibold text-on-surface">Ablenkungsfreier Modus</span>
+              <span class="text-[11px] text-on-surface-variant">Benachrichtigungen stummschalten</span>
+            </div>
+          </div>
+          <!-- Toggle Switch -->
+          <button id="dnd-toggle" role="switch" aria-checked="true" class="w-11 h-6 rounded-full bg-primary relative transition-colors cursor-pointer" type="button">
+            <span id="dnd-handle" class="w-4 h-4 rounded-full bg-white absolute top-1 left-1 transform translate-x-5 transition-transform"></span>
+          </button>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- Bottom Fixed Navigation Bar (Matches Stitch Specification) -->
+    <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto z-40 bg-surface/95 backdrop-blur-xl pb-safe border-t border-surface-container-high/60 shadow-[0_-2px_10px_rgba(0,0,0,0.03)]">
+      <div class="h-16 px-4 flex items-center justify-around">
+        <!-- Tab 1: Pfad -->
+        <button class="nav-tab flex flex-col items-center justify-center gap-0.5 text-on-surface-variant hover:text-on-surface transition-colors py-1 px-3" data-screen="pfad">
+          <span class="material-symbols-outlined text-[22px]">route</span>
+          <span class="font-label-sm text-[10px] tracking-tight">Pfad</span>
+        </button>
+
+        <!-- Tab 2: Kurse -->
+        <button class="nav-tab active flex flex-col items-center justify-center gap-0.5 text-on-surface hover:text-on-surface transition-colors py-1 px-3" data-screen="kurse">
+          <span class="material-symbols-outlined text-[22px]">grid_view</span>
+          <span class="font-label-sm text-[10px] tracking-tight">Kurse</span>
+        </button>
+
+        <!-- Tab 3: Fokus -->
+        <button class="nav-tab flex flex-col items-center justify-center gap-0.5 text-on-surface-variant hover:text-on-surface transition-colors py-1 px-3" data-screen="fokus">
+          <span class="material-symbols-outlined text-[22px]">hourglass_empty</span>
+          <span class="font-label-sm text-[10px] tracking-tight">Fokus</span>
+        </button>
+
+        <!-- Tab 4: Lernen -->
+        <button class="nav-tab flex flex-col items-center justify-center gap-0.5 text-on-surface-variant hover:text-on-surface transition-colors py-1 px-3" data-screen="lernen">
+          <span class="material-symbols-outlined text-[22px]">bolt</span>
+          <span class="font-label-sm text-[10px] tracking-tight">Lernen</span>
+        </button>
+      </div>
+    </nav>
+
+    <!-- Modal: Neon Tech PostgreSQL Settings -->
+    <div id="modal-neon-settings" class="hidden fixed inset-0 z-50 flex items-center justify-center px-4 modal-overlay">
+      <div class="bg-surface p-6 rounded-2xl max-w-sm w-full border border-surface-container-high shadow-2xl flex flex-col gap-4">
+        <div class="flex items-center justify-between pb-2 border-b border-surface-container-high">
+          <div class="flex items-center gap-2">
+            <span class="text-xl">🐘</span>
+            <h3 class="font-title-md font-bold text-[16px] text-on-surface">Neon Tech Database</h3>
+          </div>
+          <button id="btn-close-neon-modal" class="w-7 h-7 rounded-full flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high">
+            <span class="material-symbols-outlined text-[18px]">close</span>
+          </button>
+        </div>
+
+        <p class="text-xs text-on-surface-variant leading-relaxed">
+          Verbinde deine Serverless PostgreSQL Instanz auf Neon Tech. Wenn kein String hinterlegt ist, läuft die PWA im autonomen Offline-Demo-Modus.
+        </p>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[11px] font-code text-on-surface-variant font-semibold">Neon Connection String / URL</label>
+          <input id="input-neon-connection" type="password" placeholder="postgresql://user:pass@ep-xyz.neon.tech/neondb?sslmode=require" class="w-full text-xs font-code p-2.5 rounded-lg border border-surface-container-high bg-surface-container-lowest focus:outline-none focus:border-primary">
+          <span id="neon-test-result" class="text-xs font-code"></span>
+        </div>
+
+        <div class="flex items-center gap-2 pt-1">
+          <button id="btn-test-neon" class="flex-1 py-2 rounded-lg bg-surface-container-high text-on-surface text-xs font-semibold hover:bg-surface-container-highest transition-colors">
+            Testen
+          </button>
+          <button id="btn-save-neon" class="flex-1 py-2 rounded-lg bg-primary text-on-primary text-xs font-semibold hover:bg-neutral-800 transition-colors">
+            Speichern
+          </button>
+        </div>
+
+        <div class="pt-2 border-t border-surface-container-high flex items-center justify-between">
+          <button id="btn-reset-demo-data" class="text-[11px] text-error hover:underline font-medium">
+            Demo-Daten zurücksetzen
+          </button>
+          <span class="text-[10px] text-on-surface-variant font-code">Neon v16 / PWA v1.0</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Scripts -->
+  <script src="neon-client.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
