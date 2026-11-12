@@ -1,12 +1,22 @@
 // ============================================================================
-// Studyling Auth Helpers (api/_auth.js)
+// Studyling Auth Helpers (api/_auth.js) - Production Ready
 // Password Hashing (bcrypt) & JWT Token Verification
 // ============================================================================
 
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+require('dotenv').config();
 
-const JWT_SECRET = process.env.JWT_SECRET || 'studyling_production_jwt_secret_2025_safe';
+function sanitizeSecret(val) {
+  if (!val) return 'studyling_production_jwt_secret_2025_safe';
+  let clean = String(val).trim();
+  if ((clean.startsWith('"') && clean.endsWith('"')) || (clean.startsWith("'") && clean.endsWith("'"))) {
+    clean = clean.slice(1, -1).trim();
+  }
+  return clean || 'studyling_production_jwt_secret_2025_safe';
+}
+
+const JWT_SECRET = sanitizeSecret(process.env.JWT_SECRET);
 
 function signToken(user) {
   return jwt.sign(
@@ -51,6 +61,7 @@ async function hashPassword(plainPassword) {
 }
 
 async function comparePassword(plainPassword, hash) {
+  if (!plainPassword || !hash) return false;
   return await bcrypt.compare(plainPassword, hash);
 }
 
@@ -59,5 +70,6 @@ module.exports = {
   verifyToken,
   getAuthenticatedUser,
   hashPassword,
-  comparePassword
+  comparePassword,
+  JWT_SECRET_CONFIGURED: !!process.env.JWT_SECRET
 };

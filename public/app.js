@@ -142,6 +142,33 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
       btnProfileGoAdmin?.classList.add('hidden');
     }
+
+    checkDbDiagnostics();
+  };
+
+  const checkDbDiagnostics = async () => {
+    try {
+      const res = await fetch('/api/diagnostics');
+      if (res.ok) {
+        const diag = await res.json();
+        const dot = document.getElementById('db-status-dot');
+        const label = document.getElementById('db-status-label');
+        const sub = document.getElementById('db-status-sub');
+        if (diag.database?.neonConnected) {
+          if (dot) dot.className = 'w-2 h-2 rounded-full bg-emerald-500';
+          if (label) label.textContent = 'Neon PostgreSQL';
+          if (sub) sub.textContent = 'Live Cloud ✓';
+        } else if (diag.database?.configured) {
+          if (dot) dot.className = 'w-2 h-2 rounded-full bg-rose-500';
+          if (label) label.textContent = 'Neon DB';
+          if (sub) sub.textContent = diag.database?.error ? 'Verbindungsfehler' : 'Nicht erreichbar';
+        } else {
+          if (dot) dot.className = 'w-2 h-2 rounded-full bg-amber-500';
+          if (label) label.textContent = 'Lokaler Modus';
+          if (sub) sub.textContent = 'In-Memory Fallback';
+        }
+      }
+    } catch (e) {}
   };
 
   client.subscribe(updateHeaderUI);

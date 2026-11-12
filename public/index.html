@@ -443,6 +443,15 @@
             </div>
           </div>
 
+          <!-- DB Connection Status Pill -->
+          <div id="db-status-pill" class="flex items-center justify-between px-3 py-1.5 bg-surface-container-low rounded-lg border border-surface-container-high text-[11px] font-code">
+            <div class="flex items-center gap-1.5">
+              <span id="db-status-dot" class="w-2 h-2 rounded-full bg-secondary-container"></span>
+              <span id="db-status-label" class="text-on-surface font-semibold">Neon DB</span>
+            </div>
+            <span id="db-status-sub" class="text-on-surface-variant">Prüfe...</span>
+          </div>
+
           <!-- Open Admin Panel button inside profile if admin -->
           <button id="btn-profile-go-admin" class="hidden w-full py-2.5 rounded-xl bg-primary text-secondary-container font-semibold text-xs flex items-center justify-center gap-1.5 hover:bg-neutral-800 transition-colors">
             <span class="material-symbols-outlined text-[16px]">admin_panel_settings</span>
