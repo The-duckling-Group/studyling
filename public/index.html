@@ -20,7 +20,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet">
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet">
 
-  <!-- Tailwind CSS CDN -->
+  <!-- Tailwind CSS CDN with Stitch Palette -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script id="tailwind-config">
     tailwind.config = {
@@ -107,31 +107,37 @@
 </head>
 <body class="bg-surface text-on-surface antialiased flex justify-center min-h-screen">
 
-  <!-- Mobile App Frame Container (Centered for Desktop & Native for Mobile) -->
+  <!-- Mobile App Frame Container -->
   <div class="app-viewport w-full max-w-md mx-auto shadow-2xl relative flex flex-col bg-surface border-x border-surface-container-high/60">
 
     <!-- PWA Install Banner -->
-    <div id="pwa-install-banner" class="hidden bg-primary text-on-primary px-4 py-2.5 flex items-center justify-between z-50 text-xs">
+    <div id="pwa-install-banner" class="hidden bg-primary text-on-primary px-4 py-2 flex items-center justify-between z-50 text-xs">
       <div class="flex items-center gap-2">
-        <span class="material-symbols-outlined text-[18px] text-secondary-container">download</span>
+        <span class="material-symbols-outlined text-[16px] text-secondary-container">download</span>
         <span>Studyling als App installieren</span>
       </div>
-      <button id="btn-install-pwa" class="bg-secondary-container text-on-secondary-fixed px-3 py-1 rounded font-bold uppercase tracking-wider text-[10px]">
+      <button id="btn-install-pwa" class="bg-secondary-container text-on-secondary-fixed px-3 py-0.5 rounded font-bold uppercase tracking-wider text-[10px]">
         Installieren
       </button>
     </div>
 
-    <!-- Top Fixed Sticky Header (Matching Stitch Specification) -->
+    <!-- Top Fixed Header -->
     <header id="main-header" class="sticky top-0 w-full z-40 bg-surface/90 backdrop-blur-xl pt-safe shadow-[0_1px_6px_rgba(0,0,0,0.02)] border-b border-surface-container-high/40 transition-opacity">
       <div class="h-14 px-margin-mobile flex items-center justify-between">
         <!-- Logo -->
         <div class="flex items-center gap-1.5 cursor-pointer" onclick="location.hash='kurse'">
           <span class="font-headline-sm text-[20px] tracking-tight text-on-surface font-extrabold lowercase">studyling</span>
-          <span id="neon-status-badge" class="w-2 h-2 rounded-full bg-secondary-container transition-colors" title="Neon Tech Status"></span>
+          <span class="w-1.5 h-1.5 rounded-full bg-secondary-container"></span>
         </div>
 
-        <!-- Right Side: Streak & Profile -->
-        <div class="flex items-center gap-3">
+        <!-- Right Side: Admin Badge, Streak, Profile -->
+        <div class="flex items-center gap-2.5">
+          <!-- Admin Panel Trigger (Visible if role === 'admin') -->
+          <button id="btn-open-admin" class="hidden px-2.5 py-1 rounded-full bg-primary text-secondary-container text-[11px] font-code font-bold uppercase tracking-wider flex items-center gap-1 shadow-sm hover:bg-neutral-800 transition-colors" type="button">
+            <span class="material-symbols-outlined text-[14px]">admin_panel_settings</span>
+            <span>Admin</span>
+          </button>
+
           <!-- Streak Indicator -->
           <div class="flex items-center gap-1 bg-surface-container-low px-2.5 py-1 rounded-full border border-surface-container-high/60" title="Aktueller Lern-Streak">
             <span class="material-symbols-outlined text-secondary text-[16px] material-symbols-fill">local_fire_department</span>
@@ -143,8 +149,8 @@
             <span id="user-xp-counter" class="font-code text-[11px] font-medium text-on-surface-variant">1420 EP</span>
           </div>
 
-          <!-- Profile / Settings Button (Triggers Neon Tech DB modal) -->
-          <button id="btn-profile-settings" class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface hover:bg-surface-container-high transition-colors" title="Neon Tech Datenbank & Profil" type="button">
+          <!-- Profile / Auth Button -->
+          <button id="btn-profile-trigger" class="w-8 h-8 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface hover:bg-surface-container-high transition-colors" title="Profil & Konto" type="button">
             <span class="material-symbols-outlined text-[18px]">person</span>
           </button>
         </div>
@@ -158,13 +164,12 @@
       <!-- SCREEN 2: Meine Kurse & Grundlagenfächer (Default View)            -->
       <!-- =================================================================== -->
       <section id="screen-kurse" class="screen-view active flex-col w-full">
-        <!-- Header & Filter Row -->
         <div class="pt-2 pb-4">
           <div class="flex items-baseline justify-between mb-3">
             <h1 class="font-headline-lg-mobile text-[24px] text-on-surface tracking-tight font-extrabold">
               Meine Kurse
             </h1>
-            <span class="font-code text-label-sm text-on-surface-variant font-medium">02/05 AKTIV</span>
+            <span id="courses-active-count" class="font-code text-label-sm text-on-surface-variant font-medium">02/05 AKTIV</span>
           </div>
 
           <!-- Filter Pills -->
@@ -174,7 +179,7 @@
               <span>Alle</span>
             </button>
             <button class="course-filter-btn px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant hover:text-on-surface font-label-md text-label-sm transition-all text-[12px]" data-filter="active">
-              <span>Aktiv (2)</span>
+              <span>Aktiv</span>
             </button>
             <button class="course-filter-btn px-3 py-1 rounded-full bg-surface-container-low text-on-surface-variant hover:text-on-surface font-label-md text-label-sm transition-all text-[12px]" data-filter="catalog">
               <span>Katalog</span>
@@ -185,7 +190,6 @@
           </div>
         </div>
 
-        <!-- Editorial Section Header -->
         <div class="pb-2 pt-2 flex items-center justify-between border-b border-surface-container-high/60">
           <span class="font-label-sm text-[11px] uppercase tracking-wider text-on-surface-variant font-semibold">Im Fortschritt</span>
           <span class="font-code text-label-sm text-[11px] text-on-surface-variant">Q2 • 2025</span>
@@ -193,10 +197,10 @@
 
         <!-- Dynamic Course List -->
         <div id="active-courses-list" class="flex flex-col gap-1 mt-2">
-          <!-- Filled dynamically by app.js from Neon client -->
+          <!-- Filled dynamically -->
         </div>
 
-        <!-- Academic Portal Sub-Curricula Banner -->
+        <!-- Academic Portal Banner -->
         <div class="mt-8 p-4 bg-surface-container-lowest rounded-xl border border-surface-container-high flex flex-col gap-2">
           <div class="flex items-center justify-between">
             <span class="font-label-sm text-[11px] uppercase tracking-wider text-on-surface-variant font-semibold">Akademisches Portal</span>
@@ -219,19 +223,17 @@
       <!-- SCREEN 3: Lernpfad: Mathematik (Ultra-Minimal)                     -->
       <!-- =================================================================== -->
       <section id="screen-pfad" class="screen-view flex-col w-full">
-        <!-- Section Header -->
         <div class="pt-2 pb-5 border-b border-surface-container-high/60">
           <div class="flex items-center justify-between text-on-surface-variant font-code text-label-sm mb-1">
-            <span class="text-[12px] font-semibold text-secondary">Mathematik / Abschnitt 01</span>
+            <span id="path-section-tag" class="text-[12px] font-semibold text-secondary">Mathematik / Abschnitt 01</span>
             <span id="path-progress-pct" class="text-[12px] font-bold text-on-surface">25%</span>
           </div>
-          <h1 class="font-headline-lg-mobile text-[22px] font-extrabold text-on-surface tracking-tight">
+          <h1 id="path-section-title" class="font-headline-lg-mobile text-[22px] font-extrabold text-on-surface tracking-tight">
             Vektoren & Matrizen
           </h1>
-          <p class="font-body-sm text-[13px] text-on-surface-variant mt-1">
+          <p id="path-section-desc" class="font-body-sm text-[13px] text-on-surface-variant mt-1">
             Grundlagen der Linearen Algebra für ingenieur- und naturwissenschaftliche Studiengänge.
           </p>
-          <!-- Progress Bar -->
           <div class="w-full h-1 bg-surface-container-highest rounded-full overflow-hidden mt-3">
             <div id="path-progress-bar" class="h-full bg-secondary-container rounded-full transition-all duration-300" style="width: 25%"></div>
           </div>
@@ -239,7 +241,7 @@
 
         <!-- Learning Path Sequential Nodes -->
         <div id="learning-path-nodes" class="flex flex-col gap-3 mt-4">
-          <!-- Filled dynamically by app.js from Neon client -->
+          <!-- Filled dynamically -->
         </div>
       </section>
 
@@ -247,7 +249,6 @@
       <!-- SCREEN 1: Lerneinheit (Ultra-Minimal Active Recall Quiz)            -->
       <!-- =================================================================== -->
       <section id="screen-lernen" class="screen-view flex-col w-full">
-        <!-- Micro Progress Header -->
         <div class="flex flex-col gap-space-sm mb-4">
           <div class="flex items-center justify-between">
             <button id="btn-quiz-close" aria-label="Lerneinheit beenden" class="w-8 h-8 rounded-full flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" type="button">
@@ -260,13 +261,11 @@
             <span id="quiz-counter" class="font-code text-code text-on-surface-variant text-[13px]">06<span class="text-outline-variant">/</span>10</span>
           </div>
 
-          <!-- Hairline Progress Track -->
           <div class="w-full h-[2px] bg-surface-container-highest rounded-full overflow-hidden">
             <div id="quiz-progress-bar" class="h-full bg-secondary-container rounded-full w-[60%] transition-all duration-300"></div>
           </div>
         </div>
 
-        <!-- Central Question Section -->
         <div class="flex flex-col pt-2 pb-4">
           <span class="font-label-sm text-[11px] uppercase tracking-widest text-on-surface-variant font-semibold mb-1">
             Aktives Erinnern
@@ -279,9 +278,8 @@
           </p>
         </div>
 
-        <!-- Interactive Selection Options -->
         <div id="quiz-options-list" aria-label="Antwortoptionen" class="flex flex-col gap-2.5 my-2" role="radiogroup">
-          <!-- Filled dynamically by app.js -->
+          <!-- Filled dynamically -->
         </div>
 
         <!-- Feedback & Next Action Sheet -->
@@ -293,9 +291,7 @@
             </div>
             <span id="quiz-feedback-xp" class="font-code font-bold text-secondary text-[13px]">+20 EP</span>
           </div>
-          <p id="quiz-feedback-explanation" class="text-xs text-on-surface-variant leading-relaxed">
-            Die Langzeitpotenzierung (LTP) verstärkt dauerhaft die synaptische Transmission.
-          </p>
+          <p id="quiz-feedback-explanation" class="text-xs text-on-surface-variant leading-relaxed"></p>
           <div class="flex justify-end pt-1">
             <button id="btn-quiz-next" class="px-5 py-2 rounded-full bg-primary text-on-primary font-label-md text-xs font-semibold flex items-center gap-1.5 hover:bg-neutral-800 transition-colors shadow-sm" type="button">
               <span>Weiter</span>
@@ -309,7 +305,6 @@
       <!-- SCREEN 5: Study Timer (Ultra-Minimal)                              -->
       <!-- =================================================================== -->
       <section id="screen-fokus" class="screen-view flex-col w-full items-center">
-        <!-- Title & Session Meta -->
         <div class="w-full flex flex-col pt-2 pb-4">
           <div class="flex items-center justify-between mb-1">
             <span class="font-label-sm text-[11px] uppercase tracking-wider text-on-surface-variant font-semibold">Fokus-Phase</span>
@@ -320,7 +315,7 @@
           </h1>
         </div>
 
-        <!-- Mode Selector Pills -->
+        <!-- Mode Pills -->
         <div class="w-full flex items-center gap-2 overflow-x-auto no-scrollbar pb-2 mb-2">
           <button id="mode-25" class="mode-pill flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-on-primary transition-all flex-shrink-0 text-xs font-semibold" type="button">
             <span class="w-1.5 h-1.5 rounded-full bg-secondary-container"></span>
@@ -334,16 +329,13 @@
           </button>
         </div>
 
-        <!-- Timer Core Dial -->
+        <!-- Timer Circular Dial -->
         <div class="relative flex flex-col items-center justify-center py-6">
           <div class="relative w-64 h-64 flex items-center justify-center">
             <svg class="w-full h-full -rotate-90 transform" viewBox="0 0 256 256">
-              <!-- Track Background -->
               <circle class="text-surface-container-highest" cx="128" cy="128" fill="transparent" r="112" stroke="currentColor" stroke-width="3"></circle>
-              <!-- Active Progress Arc -->
               <circle id="timer-progress" class="text-secondary-container" cx="128" cy="128" fill="transparent" r="112" stroke="currentColor" stroke-dasharray="703.7" stroke-dashoffset="0" stroke-linecap="round" stroke-width="5"></circle>
             </svg>
-            <!-- Center Text Core -->
             <div class="absolute flex flex-col items-center justify-center text-center">
               <span id="timer-display" class="font-display-xl-mobile text-[44px] font-bold text-primary tracking-tight font-code">25:00</span>
               <span class="text-xs text-on-surface-variant font-medium mt-1">Intervall 1 von 4 · Fokus</span>
@@ -351,7 +343,7 @@
           </div>
         </div>
 
-        <!-- Controls: Play, Reset, Skip -->
+        <!-- Controls -->
         <div class="flex items-center gap-4 my-4">
           <button id="btn-reset" class="w-10 h-10 rounded-full bg-surface-container-low hover:bg-surface-container-high flex items-center justify-center text-on-surface-variant transition-colors" title="Zurücksetzen" type="button">
             <span class="material-symbols-outlined text-[20px]">refresh</span>
@@ -376,7 +368,6 @@
               <span class="text-[11px] text-on-surface-variant">Benachrichtigungen stummschalten</span>
             </div>
           </div>
-          <!-- Toggle Switch -->
           <button id="dnd-toggle" role="switch" aria-checked="true" class="w-11 h-6 rounded-full bg-primary relative transition-colors cursor-pointer" type="button">
             <span id="dnd-handle" class="w-4 h-4 rounded-full bg-white absolute top-1 left-1 transform translate-x-5 transition-transform"></span>
           </button>
@@ -385,28 +376,24 @@
 
     </main>
 
-    <!-- Bottom Fixed Navigation Bar (Matches Stitch Specification) -->
+    <!-- Bottom Navigation Bar -->
     <nav class="fixed bottom-0 left-0 right-0 max-w-md mx-auto z-40 bg-surface/95 backdrop-blur-xl pb-safe border-t border-surface-container-high/60 shadow-[0_-2px_10px_rgba(0,0,0,0.03)]">
       <div class="h-16 px-4 flex items-center justify-around">
-        <!-- Tab 1: Pfad -->
         <button class="nav-tab flex flex-col items-center justify-center gap-0.5 text-on-surface-variant hover:text-on-surface transition-colors py-1 px-3" data-screen="pfad">
           <span class="material-symbols-outlined text-[22px]">route</span>
           <span class="font-label-sm text-[10px] tracking-tight">Pfad</span>
         </button>
 
-        <!-- Tab 2: Kurse -->
         <button class="nav-tab active flex flex-col items-center justify-center gap-0.5 text-on-surface hover:text-on-surface transition-colors py-1 px-3" data-screen="kurse">
           <span class="material-symbols-outlined text-[22px]">grid_view</span>
           <span class="font-label-sm text-[10px] tracking-tight">Kurse</span>
         </button>
 
-        <!-- Tab 3: Fokus -->
         <button class="nav-tab flex flex-col items-center justify-center gap-0.5 text-on-surface-variant hover:text-on-surface transition-colors py-1 px-3" data-screen="fokus">
           <span class="material-symbols-outlined text-[22px]">hourglass_empty</span>
           <span class="font-label-sm text-[10px] tracking-tight">Fokus</span>
         </button>
 
-        <!-- Tab 4: Lernen -->
         <button class="nav-tab flex flex-col items-center justify-center gap-0.5 text-on-surface-variant hover:text-on-surface transition-colors py-1 px-3" data-screen="lernen">
           <span class="material-symbols-outlined text-[22px]">bolt</span>
           <span class="font-label-sm text-[10px] tracking-tight">Lernen</span>
@@ -414,44 +401,340 @@
       </div>
     </nav>
 
-    <!-- Modal: Neon Tech PostgreSQL Settings -->
-    <div id="modal-neon-settings" class="hidden fixed inset-0 z-50 flex items-center justify-center px-4 modal-overlay">
+    <!-- =================================================================== -->
+    <!-- MODAL 1: Profile & Authentication (Login / Register / User Info)    -->
+    <!-- =================================================================== -->
+    <div id="modal-auth" class="hidden fixed inset-0 z-50 flex items-center justify-center px-4 modal-overlay">
       <div class="bg-surface p-6 rounded-2xl max-w-sm w-full border border-surface-container-high shadow-2xl flex flex-col gap-4">
+        
+        <!-- Modal Header -->
         <div class="flex items-center justify-between pb-2 border-b border-surface-container-high">
           <div class="flex items-center gap-2">
-            <span class="text-xl">🐘</span>
-            <h3 class="font-title-md font-bold text-[16px] text-on-surface">Neon Tech Database</h3>
+            <span class="font-headline-sm text-[17px] font-extrabold text-on-surface" id="auth-modal-title">Mein Konto</span>
           </div>
-          <button id="btn-close-neon-modal" class="w-7 h-7 rounded-full flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high">
+          <button id="btn-close-auth-modal" class="w-7 h-7 rounded-full flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high">
             <span class="material-symbols-outlined text-[18px]">close</span>
           </button>
         </div>
 
-        <p class="text-xs text-on-surface-variant leading-relaxed">
-          Verbinde deine Serverless PostgreSQL Instanz auf Neon Tech. Wenn kein String hinterlegt ist, läuft die PWA im autonomen Offline-Demo-Modus.
-        </p>
+        <!-- VIEW: LOGGED IN USER PROFILE -->
+        <div id="auth-view-profile" class="flex flex-col gap-3">
+          <div class="flex items-center gap-3 p-3 bg-surface-container-low rounded-xl">
+            <div class="w-12 h-12 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-lg" id="profile-avatar-char">
+              A
+            </div>
+            <div class="flex flex-col">
+              <span id="profile-name" class="font-headline-sm text-sm font-bold text-on-surface">Alex M.</span>
+              <span id="profile-email" class="text-xs text-on-surface-variant">alex@studyling.app</span>
+              <span id="profile-role-badge" class="mt-1 w-max px-2 py-0.5 rounded-full text-[10px] font-code font-bold uppercase tracking-wider bg-surface-container-high text-on-surface">
+                Student
+              </span>
+            </div>
+          </div>
 
-        <div class="flex flex-col gap-1.5">
-          <label class="text-[11px] font-code text-on-surface-variant font-semibold">Neon Connection String / URL</label>
-          <input id="input-neon-connection" type="password" placeholder="postgresql://user:pass@ep-xyz.neon.tech/neondb?sslmode=require" class="w-full text-xs font-code p-2.5 rounded-lg border border-surface-container-high bg-surface-container-lowest focus:outline-none focus:border-primary">
-          <span id="neon-test-result" class="text-xs font-code"></span>
+          <div class="grid grid-cols-2 gap-2 text-center">
+            <div class="p-2.5 bg-surface-container-lowest rounded-lg border border-surface-container-high">
+              <span class="text-[10px] font-code text-on-surface-variant block uppercase">Lern-Streak</span>
+              <span id="profile-streak" class="font-code font-bold text-base text-secondary">12 Tage</span>
+            </div>
+            <div class="p-2.5 bg-surface-container-lowest rounded-lg border border-surface-container-high">
+              <span class="text-[10px] font-code text-on-surface-variant block uppercase">Gesamt XP</span>
+              <span id="profile-xp" class="font-code font-bold text-base text-primary">1420 EP</span>
+            </div>
+          </div>
+
+          <!-- Open Admin Panel button inside profile if admin -->
+          <button id="btn-profile-go-admin" class="hidden w-full py-2.5 rounded-xl bg-primary text-secondary-container font-semibold text-xs flex items-center justify-center gap-1.5 hover:bg-neutral-800 transition-colors">
+            <span class="material-symbols-outlined text-[16px]">admin_panel_settings</span>
+            <span>Admin Panel öffnen</span>
+          </button>
+
+          <button id="btn-auth-logout" class="w-full py-2 rounded-xl bg-surface-container-high text-error font-semibold text-xs hover:bg-error-container hover:text-on-error-container transition-colors">
+            Abmelden
+          </button>
+
+          <div class="pt-2 border-t border-surface-container-high flex justify-between items-center text-[11px] text-on-surface-variant">
+            <span>Mit anderem Konto anmelden?</span>
+            <button id="btn-show-login-view" class="text-primary font-bold hover:underline">Wechseln</button>
+          </div>
         </div>
 
-        <div class="flex items-center gap-2 pt-1">
-          <button id="btn-test-neon" class="flex-1 py-2 rounded-lg bg-surface-container-high text-on-surface text-xs font-semibold hover:bg-surface-container-highest transition-colors">
-            Testen
+        <!-- VIEW: LOGIN FORM -->
+        <div id="auth-view-login" class="hidden flex flex-col gap-3">
+          <p class="text-xs text-on-surface-variant">
+            Melde dich mit deinen Zugangsdaten an.
+          </p>
+
+          <!-- Quick 1-Click Demo Buttons for Evaluation -->
+          <div class="flex gap-2">
+            <button id="btn-quick-admin-login" class="flex-1 py-1.5 px-2 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-[11px] font-code font-bold text-on-surface text-center">
+              🔑 Als Admin
+            </button>
+            <button id="btn-quick-student-login" class="flex-1 py-1.5 px-2 rounded-lg bg-surface-container-high hover:bg-surface-container-highest text-[11px] font-code font-bold text-on-surface text-center">
+              🎒 Als Student
+            </button>
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="text-[11px] font-code text-on-surface-variant font-semibold">E-Mail</label>
+            <input id="login-email" type="email" placeholder="name@studyling.app" class="w-full text-xs font-code p-2.5 rounded-lg border border-surface-container-high bg-surface-container-lowest focus:outline-none focus:border-primary">
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="text-[11px] font-code text-on-surface-variant font-semibold">Passwort</label>
+            <input id="login-password" type="password" placeholder="••••••••" class="w-full text-xs font-code p-2.5 rounded-lg border border-surface-container-high bg-surface-container-lowest focus:outline-none focus:border-primary">
+          </div>
+
+          <span id="login-error" class="text-xs text-rose-600 font-code"></span>
+
+          <button id="btn-do-login" class="w-full py-2.5 rounded-xl bg-primary text-on-primary font-semibold text-xs hover:bg-neutral-800 transition-colors">
+            Anmelden
           </button>
-          <button id="btn-save-neon" class="flex-1 py-2 rounded-lg bg-primary text-on-primary text-xs font-semibold hover:bg-neutral-800 transition-colors">
-            Speichern
+
+          <div class="text-center text-xs text-on-surface-variant pt-1">
+            Noch kein Konto? <button id="btn-switch-to-register" class="text-primary font-bold hover:underline">Jetzt registrieren</button>
+          </div>
+        </div>
+
+        <!-- VIEW: REGISTER FORM -->
+        <div id="auth-view-register" class="hidden flex flex-col gap-3">
+          <p class="text-xs text-on-surface-variant">
+            Erstelle ein neues Studyling-Konto.
+          </p>
+
+          <div class="flex flex-col gap-1">
+            <label class="text-[11px] font-code text-on-surface-variant font-semibold">Vollständiger Name</label>
+            <input id="reg-name" type="text" placeholder="Alex Mustermann" class="w-full text-xs p-2.5 rounded-lg border border-surface-container-high bg-surface-container-lowest focus:outline-none focus:border-primary">
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="text-[11px] font-code text-on-surface-variant font-semibold">E-Mail</label>
+            <input id="reg-email" type="email" placeholder="alex@beispiel.de" class="w-full text-xs font-code p-2.5 rounded-lg border border-surface-container-high bg-surface-container-lowest focus:outline-none focus:border-primary">
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <label class="text-[11px] font-code text-on-surface-variant font-semibold">Passwort</label>
+            <input id="reg-password" type="password" placeholder="Mindestens 6 Zeichen" class="w-full text-xs font-code p-2.5 rounded-lg border border-surface-container-high bg-surface-container-lowest focus:outline-none focus:border-primary">
+          </div>
+
+          <span id="reg-error" class="text-xs text-rose-600 font-code"></span>
+
+          <button id="btn-do-register" class="w-full py-2.5 rounded-xl bg-primary text-on-primary font-semibold text-xs hover:bg-neutral-800 transition-colors">
+            Konto erstellen
+          </button>
+
+          <div class="text-center text-xs text-on-surface-variant pt-1">
+            Bereits ein Konto? <button id="btn-switch-to-login" class="text-primary font-bold hover:underline">Hier anmelden</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- =================================================================== -->
+    <!-- MODAL 2: FULL ADMIN PANEL                                         -->
+    <!-- =================================================================== -->
+    <div id="modal-admin" class="hidden fixed inset-0 z-50 flex items-center justify-center p-3 modal-overlay">
+      <div class="bg-surface rounded-2xl max-w-lg w-full max-h-[90vh] border border-surface-container-high shadow-2xl flex flex-col overflow-hidden">
+        
+        <!-- Admin Panel Top Header -->
+        <div class="p-4 bg-primary text-on-primary flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="material-symbols-outlined text-secondary-container text-[22px]">admin_panel_settings</span>
+            <div>
+              <h2 class="font-headline-sm text-sm font-bold leading-tight">Studyling Admin Panel</h2>
+              <span class="text-[11px] text-neutral-300 font-code">Verwaltung & Konfiguration</span>
+            </div>
+          </div>
+          <button id="btn-close-admin-modal" class="w-7 h-7 rounded-full flex items-center justify-center text-neutral-300 hover:text-white hover:bg-neutral-800 transition-colors">
+            <span class="material-symbols-outlined text-[18px]">close</span>
           </button>
         </div>
 
-        <div class="pt-2 border-t border-surface-container-high flex items-center justify-between">
-          <button id="btn-reset-demo-data" class="text-[11px] text-error hover:underline font-medium">
-            Demo-Daten zurücksetzen
+        <!-- Admin Navigation Tabs -->
+        <div class="flex items-center border-b border-surface-container-high bg-surface-container-low overflow-x-auto no-scrollbar text-xs font-semibold px-2">
+          <button class="admin-tab active py-3 px-3 text-on-surface border-b-2 border-primary flex items-center gap-1.5 whitespace-nowrap" data-tab="overview">
+            <span class="material-symbols-outlined text-[16px]">dashboard</span>
+            <span>Übersicht</span>
           </button>
-          <span class="text-[10px] text-on-surface-variant font-code">Neon v16 / PWA v1.0</span>
+          <button class="admin-tab py-3 px-3 text-on-surface-variant hover:text-on-surface flex items-center gap-1.5 whitespace-nowrap" data-tab="courses">
+            <span class="material-symbols-outlined text-[16px]">menu_book</span>
+            <span>Fächer / Kurse</span>
+          </button>
+          <button class="admin-tab py-3 px-3 text-on-surface-variant hover:text-on-surface flex items-center gap-1.5 whitespace-nowrap" data-tab="paths">
+            <span class="material-symbols-outlined text-[16px]">alt_route</span>
+            <span>Lernpfade</span>
+          </button>
+          <button class="admin-tab py-3 px-3 text-on-surface-variant hover:text-on-surface flex items-center gap-1.5 whitespace-nowrap" data-tab="questions">
+            <span class="material-symbols-outlined text-[16px]">quiz</span>
+            <span>Aufgaben</span>
+          </button>
+          <button class="admin-tab py-3 px-3 text-on-surface-variant hover:text-on-surface flex items-center gap-1.5 whitespace-nowrap" data-tab="users">
+            <span class="material-symbols-outlined text-[16px]">group</span>
+            <span>Benutzer</span>
+          </button>
         </div>
+
+        <!-- Admin Content Area -->
+        <div class="p-4 flex-1 overflow-y-auto max-h-[calc(90vh-120px)] flex flex-col gap-4 text-xs">
+          
+          <!-- TAB 1: ÜBERSICHT -->
+          <div id="admin-tab-overview" class="admin-tab-content flex flex-col gap-3">
+            <div class="grid grid-cols-2 gap-3">
+              <div class="p-3 bg-surface-container-lowest rounded-xl border border-surface-container-high">
+                <span class="text-on-surface-variant text-[11px] block">Registrierte Benutzer</span>
+                <span id="admin-stat-users" class="font-headline-sm text-xl font-bold text-primary">-</span>
+              </div>
+              <div class="p-3 bg-surface-container-lowest rounded-xl border border-surface-container-high">
+                <span class="text-on-surface-variant text-[11px] block">Aktive Fächer</span>
+                <span id="admin-stat-courses" class="font-headline-sm text-xl font-bold text-secondary">-</span>
+              </div>
+              <div class="p-3 bg-surface-container-lowest rounded-xl border border-surface-container-high">
+                <span class="text-on-surface-variant text-[11px] block">Lektionen im Pfad</span>
+                <span id="admin-stat-nodes" class="font-headline-sm text-xl font-bold text-primary">-</span>
+              </div>
+              <div class="p-3 bg-surface-container-lowest rounded-xl border border-surface-container-high">
+                <span class="text-on-surface-variant text-[11px] block">Quiz-Aufgaben</span>
+                <span id="admin-stat-questions" class="font-headline-sm text-xl font-bold text-secondary">-</span>
+              </div>
+            </div>
+
+            <div class="p-3.5 bg-surface-container-low rounded-xl border border-surface-container-high flex flex-col gap-1.5">
+              <span class="font-bold text-on-surface">Neon Tech Cloud-Verbindung</span>
+              <p class="text-[11px] text-on-surface-variant leading-relaxed">
+                Das Backend liest deine Datenbank direkt aus der Environment Variable <code class="font-code text-primary bg-surface-container-high px-1 py-0.5 rounded">DATABASE_URL</code> in Vercel. Keine clientseitigen Passwörter nötig.
+              </p>
+            </div>
+          </div>
+
+          <!-- TAB 2: FÄCHER & KURSE VERWALTEN -->
+          <div id="admin-tab-courses" class="admin-tab-content hidden flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-sm text-on-surface">Vorhandene Fächer</span>
+              <button id="btn-admin-show-create-course" class="px-3 py-1.5 rounded-full bg-primary text-on-primary font-semibold flex items-center gap-1 hover:bg-neutral-800 transition-colors">
+                <span class="material-symbols-outlined text-[14px]">add</span>
+                <span>Neues Fach anlegen</span>
+              </button>
+            </div>
+
+            <!-- Form: Neues Fach -->
+            <form id="form-create-course" class="hidden p-3.5 bg-surface-container-low rounded-xl border border-surface-container-high flex flex-col gap-2.5">
+              <span class="font-bold text-xs text-on-surface">Neues Fach konfigurieren</span>
+              <div class="grid grid-cols-2 gap-2">
+                <input id="new-course-code" type="text" placeholder="Code (z.B. 05 / BIO-201)" class="p-2 rounded border border-surface-container-high bg-white text-xs font-code" required>
+                <input id="new-course-title" type="text" placeholder="Titel (z.B. Molekularbiologie)" class="p-2 rounded border border-surface-container-high bg-white text-xs" required>
+              </div>
+              <input id="new-course-sub" type="text" placeholder="Untertitel / Module (z.B. Zellstruktur, DNA)" class="p-2 rounded border border-surface-container-high bg-white text-xs">
+              <div class="grid grid-cols-2 gap-2">
+                <select id="new-course-cat" class="p-2 rounded border border-surface-container-high bg-white text-xs">
+                  <option value="Basis-Fächer">Basis-Fächer</option>
+                  <option value="Katalog">Katalog</option>
+                </select>
+                <input id="new-course-sem" type="text" placeholder="Semester (z.B. Sem. 1 / 2025)" class="p-2 rounded border border-surface-container-high bg-white text-xs" value="Sem. 1 / 2025">
+              </div>
+              <div class="flex justify-end gap-2 pt-1">
+                <button type="button" id="btn-cancel-create-course" class="px-3 py-1 rounded bg-surface-container-high text-on-surface">Abbrechen</button>
+                <button type="submit" class="px-3 py-1 rounded bg-primary text-on-primary font-semibold">Speichern</button>
+              </div>
+            </form>
+
+            <!-- Course List Container -->
+            <div id="admin-course-list" class="flex flex-col gap-2"></div>
+          </div>
+
+          <!-- TAB 3: LERNPFADE & LEKTIONEN -->
+          <div id="admin-tab-paths" class="admin-tab-content hidden flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-sm text-on-surface">Lektionen im Lernpfad</span>
+              <button id="btn-admin-show-create-node" class="px-3 py-1.5 rounded-full bg-primary text-on-primary font-semibold flex items-center gap-1 hover:bg-neutral-800 transition-colors">
+                <span class="material-symbols-outlined text-[14px]">add</span>
+                <span>Lerneinheit hinzufügen</span>
+              </button>
+            </div>
+
+            <!-- Form: Neue Lektion -->
+            <form id="form-create-node" class="hidden p-3.5 bg-surface-container-low rounded-xl border border-surface-container-high flex flex-col gap-2.5">
+              <span class="font-bold text-xs text-on-surface">Neue Lektion erstellen</span>
+              <div class="grid grid-cols-2 gap-2">
+                <input id="new-node-num" type="text" placeholder="Nummer (z.B. 06)" class="p-2 rounded border border-surface-container-high bg-white text-xs font-code" required>
+                <input id="new-node-title" type="text" placeholder="Titel (z.B. Eigenwerte & Vektoren)" class="p-2 rounded border border-surface-container-high bg-white text-xs" required>
+              </div>
+              <textarea id="new-node-desc" placeholder="Beschreibung der Lerneinheit..." class="p-2 rounded border border-surface-container-high bg-white text-xs h-16"></textarea>
+              <div class="grid grid-cols-2 gap-2">
+                <input id="new-node-xp" type="number" placeholder="XP Belohnung" class="p-2 rounded border border-surface-container-high bg-white text-xs font-code" value="25">
+                <select id="new-node-type" class="p-2 rounded border border-surface-container-high bg-white text-xs">
+                  <option value="lesson">Lerneinheit (Standard)</option>
+                  <option value="milestone">Meilenstein / Prüfung</option>
+                </select>
+              </div>
+              <div class="flex justify-end gap-2 pt-1">
+                <button type="button" id="btn-cancel-create-node" class="px-3 py-1 rounded bg-surface-container-high text-on-surface">Abbrechen</button>
+                <button type="submit" class="px-3 py-1 rounded bg-primary text-on-primary font-semibold">Lektion speichern</button>
+              </div>
+            </form>
+
+            <!-- Learning Nodes List -->
+            <div id="admin-nodes-list" class="flex flex-col gap-2"></div>
+          </div>
+
+          <!-- TAB 4: AUFGABEN & QUIZFRAGEN -->
+          <div id="admin-tab-questions" class="admin-tab-content hidden flex flex-col gap-3">
+            <div class="flex items-center justify-between">
+              <span class="font-bold text-sm text-on-surface">Aktives Erinnern Aufgaben</span>
+              <button id="btn-admin-show-create-q" class="px-3 py-1.5 rounded-full bg-primary text-on-primary font-semibold flex items-center gap-1 hover:bg-neutral-800 transition-colors">
+                <span class="material-symbols-outlined text-[14px]">add</span>
+                <span>Neue Aufgabe erstellen</span>
+              </button>
+            </div>
+
+            <!-- Form: Neue Aufgabe -->
+            <form id="form-create-question" class="hidden p-3.5 bg-surface-container-low rounded-xl border border-surface-container-high flex flex-col gap-2.5">
+              <span class="font-bold text-xs text-on-surface">Neue Quiz-Frage formulieren</span>
+              <div class="grid grid-cols-2 gap-2">
+                <input id="new-q-topic" type="text" placeholder="Thema (z.B. Neurobiologie)" class="p-2 rounded border border-surface-container-high bg-white text-xs" required>
+                <input id="new-q-xp" type="number" placeholder="XP Belohnung" class="p-2 rounded border border-surface-container-high bg-white text-xs font-code" value="20">
+              </div>
+              <textarea id="new-q-text" placeholder="Fragetext (z.B. Welche Funktion erfüllt die Synapse...?)" class="p-2 rounded border border-surface-container-high bg-white text-xs h-16" required></textarea>
+              <input id="new-q-highlight" type="text" placeholder="Hervorzuhebender Begriff (z.B. Synapse)" class="p-2 rounded border border-surface-container-high bg-white text-xs">
+              
+              <span class="font-semibold text-[11px] text-on-surface-variant pt-1">Antwortoptionen (Markiere die richtige Lösung):</span>
+              <div class="flex items-center gap-2">
+                <input type="radio" name="correct_opt" value="A" checked>
+                <span class="font-code font-bold">A:</span>
+                <input id="new-opt-a" type="text" placeholder="Antwortoption A" class="flex-1 p-1.5 rounded border border-surface-container-high bg-white text-xs" required>
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="radio" name="correct_opt" value="B">
+                <span class="font-code font-bold">B:</span>
+                <input id="new-opt-b" type="text" placeholder="Antwortoption B" class="flex-1 p-1.5 rounded border border-surface-container-high bg-white text-xs" required>
+              </div>
+              <div class="flex items-center gap-2">
+                <input type="radio" name="correct_opt" value="C">
+                <span class="font-code font-bold">C:</span>
+                <input id="new-opt-c" type="text" placeholder="Antwortoption C" class="flex-1 p-1.5 rounded border border-surface-container-high bg-white text-xs" required>
+              </div>
+
+              <textarea id="new-q-explanation" placeholder="Erklärung bei Auflösung..." class="p-2 rounded border border-surface-container-high bg-white text-xs h-12"></textarea>
+
+              <div class="flex justify-end gap-2 pt-1">
+                <button type="button" id="btn-cancel-create-q" class="px-3 py-1 rounded bg-surface-container-high text-on-surface">Abbrechen</button>
+                <button type="submit" class="px-3 py-1 rounded bg-primary text-on-primary font-semibold">Aufgabe anlegen</button>
+              </div>
+            </form>
+
+            <!-- Questions List -->
+            <div id="admin-questions-list" class="flex flex-col gap-2"></div>
+          </div>
+
+          <!-- TAB 5: BENUTZER & ROLLEN -->
+          <div id="admin-tab-users" class="admin-tab-content hidden flex flex-col gap-3">
+            <span class="font-bold text-sm text-on-surface">Benutzerverwaltung & Berechtigungen</span>
+            <p class="text-[11px] text-on-surface-variant">Hier können registrierte Studenten zum Administrator ernannt oder zurückgestuft werden.</p>
+            <div id="admin-users-list" class="flex flex-col gap-2"></div>
+          </div>
+
+        </div>
+
       </div>
     </div>
 

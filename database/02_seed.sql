@@ -1,31 +1,59 @@
 -- ============================================================================
 -- Studyling Learning Platform - Neon Tech PostgreSQL Seed Data
 -- File: 02_seed.sql
--- Description: Realistic production demo data matching the Google Stitch designs
+-- Description: Realistic production demo data with Admin and Student users
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
--- 1. Insert Primary Demo User (Matches Stitch Header: Alex, 12 Streak, 1420 XP)
+-- 1. Insert Admin User
+-- Email: admin@studyling.app | Password: AdminPassword123! | Role: admin
 -- ----------------------------------------------------------------------------
 INSERT INTO users (
-    id, username, email, display_name, avatar_url,
+    id, username, email, password_hash, role, display_name, avatar_url,
+    streak_count, total_xp, level, study_time_today_minutes
+) VALUES (
+    'a1111111-aaaa-bbbb-cccc-111111111111',
+    'admin',
+    'admin@studyling.app',
+    '$2b$10$PBOjLNBrYik45ahHFmfkOO8vXeu7T8RMhhbi05B5ULGsB1PWoE0dC',
+    'admin',
+    'Studyling Admin',
+    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=128&q=80',
+    42,
+    5800,
+    10,
+    90
+) ON CONFLICT (email) DO UPDATE SET
+    role = 'admin',
+    password_hash = EXCLUDED.password_hash;
+
+-- ----------------------------------------------------------------------------
+-- 2. Insert Primary Demo Student User (Alex M.)
+-- Email: alex@studyling.app | Password: Studyling2025! | Role: student
+-- ----------------------------------------------------------------------------
+INSERT INTO users (
+    id, username, email, password_hash, role, display_name, avatar_url,
     streak_count, total_xp, level, study_time_today_minutes
 ) VALUES (
     'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
     'alex_study',
     'alex@studyling.app',
+    '$2b$10$At7wq9N6bjBvfrZLlSDS3OiqZXPnn5xdfXiblJtvPpALl9Tq6eMam',
+    'student',
     'Alex M.',
     'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=128&q=80',
     12,
     1420,
     4,
     45
-) ON CONFLICT (id) DO UPDATE SET
+) ON CONFLICT (email) DO UPDATE SET
+    role = 'student',
     streak_count = EXCLUDED.streak_count,
-    total_xp = EXCLUDED.total_xp;
+    total_xp = EXCLUDED.total_xp,
+    password_hash = EXCLUDED.password_hash;
 
 -- ----------------------------------------------------------------------------
--- 2. Insert User Streaks History (Last 12 Days)
+-- 3. Insert User Streaks History (Last 12 Days for Alex M.)
 -- ----------------------------------------------------------------------------
 INSERT INTO user_streaks (user_id, activity_date, sessions_completed, xp_gained, minutes_studied)
 VALUES
@@ -44,7 +72,7 @@ VALUES
 ON CONFLICT (user_id, activity_date) DO NOTHING;
 
 -- ----------------------------------------------------------------------------
--- 3. Insert Courses (Matching Stitch Screen 2 & Screen 4)
+-- 4. Insert Courses (Matching Stitch Screen 2 & Screen 4)
 -- ----------------------------------------------------------------------------
 -- Course 1: Kognitionspsychologie (01 / PSY-402)
 INSERT INTO courses (
@@ -179,7 +207,7 @@ INSERT INTO courses (
 ) ON CONFLICT (code) DO NOTHING;
 
 -- ----------------------------------------------------------------------------
--- 4. Enrollments for Alex M.
+-- 5. Enrollments for Alex M.
 -- ----------------------------------------------------------------------------
 INSERT INTO user_course_enrollments (user_id, course_id, status, progress_pct, cards_due_count)
 VALUES
@@ -193,7 +221,7 @@ ON CONFLICT (user_id, course_id) DO UPDATE SET
     cards_due_count = EXCLUDED.cards_due_count;
 
 -- ----------------------------------------------------------------------------
--- 5. Learning Path: Mathematik / Abschnitt 01 - Vektoren & Matrizen (Screen 3)
+-- 6. Learning Path: Mathematik / Abschnitt 01 - Vektoren & Matrizen
 -- ----------------------------------------------------------------------------
 INSERT INTO learning_path_sections (
     id, course_id, section_index, section_tag, title, description, progress_pct
@@ -231,9 +259,9 @@ ON CONFLICT (user_id, node_id) DO UPDATE SET
     score_pct = EXCLUDED.score_pct;
 
 -- ----------------------------------------------------------------------------
--- 6. Quiz Questions & Options (Matching Screen 1: Lerneinheit LTP)
+-- 7. Quiz Questions & Options (Matching Screen 1: Lerneinheit LTP)
 -- ----------------------------------------------------------------------------
--- Question 1: LTP im Hippocampus (Exact match from Stitch Screen 1)
+-- Question 1: LTP im Hippocampus
 INSERT INTO quiz_questions (
     id, node_id, course_id, topic_tag, category,
     question_number, total_questions, question_text, highlight_phrase,
@@ -260,7 +288,7 @@ VALUES
     ('o3333333-3333-3333-3333-333333333333', 'q1111111-1111-1111-1111-111111111111', 'C', 'Inaktivierung von Neurotransmitter-Rezeptoren.', FALSE, 3)
 ON CONFLICT DO NOTHING;
 
--- Question 2: Matrixmultiplikation Kompatibilität (Mathematik Lerneinheit)
+-- Question 2: Matrixmultiplikation
 INSERT INTO quiz_questions (
     id, node_id, course_id, topic_tag, category,
     question_number, total_questions, question_text, highlight_phrase,
@@ -315,7 +343,7 @@ VALUES
 ON CONFLICT DO NOTHING;
 
 -- ----------------------------------------------------------------------------
--- 7. Flashcards for "8 Karten fällig" (MTH-108 Statistik)
+-- 8. Flashcards for "8 Karten fällig" (MTH-108 Statistik)
 -- ----------------------------------------------------------------------------
 INSERT INTO flashcard_decks (id, course_id, title, description)
 VALUES (
@@ -338,7 +366,7 @@ VALUES
 ON CONFLICT DO NOTHING;
 
 -- ----------------------------------------------------------------------------
--- 8. Study Timer Session History
+-- 9. Study Timer Session History
 -- ----------------------------------------------------------------------------
 INSERT INTO study_timer_sessions (
     user_id, course_id, mode, interval_current, interval_total,

@@ -1,29 +1,45 @@
-# 🎓 Studyling Learning Platform (PWA & Neon Tech PostgreSQL)
+# 🎓 Studyling Learning Platform (PWA, Neon Tech & Vercel)
 
-Vollständige Realisierung des **Google Stitch Projekts „Studyling Learning Platform“** als moderne **Progressive Web App (PWA)** mit nativer **Neon Tech (Serverless PostgreSQL)** Datenbank-Architektur.
+Vollständige Realisierung des **Google Stitch Projekts „Studyling Learning Platform“** als moderne **Progressive Web App (PWA)** mit nativer **Neon Tech (Serverless PostgreSQL)** Datenbank-Architektur, **Authentifizierung (Login & Sign Up)**, **Admin-Panel** und **Vercel-Deployment**.
 
 ---
 
-## 🌟 Projekt-Highlights
+## 🌟 Neu: Vercel Environment Variables & Admin Panel
 
-- **📱 Progressive Web App (PWA)**:
-  - Installierbar auf Android, iOS (Safari "Zum Home-Bildschirm") und Desktop (Chrome/Edge).
-  - Volle Offline-Unterstützung mit eigenem Service Worker (`sw.js`) und Web App Manifest (`manifest.json`).
-  - Haptisches und akustisches Feedback über die Web Audio API (Synthesizer ohne externe Audio-Dateien).
-  - Responsive Mobile-First Design mit Safe-Area-Insets (`pt-safe`, `pb-safe`) und nativer App-Shell.
+- **🔒 Sicherer Serverless-Betrieb über Environment Variables**:
+  - Endnutzer tragen **keine** Datenbank-URLs mehr im Browser ein!
+  - Die Neon Tech Verbindung wird serverseitig über die Environment Variable `DATABASE_URL` (in Vercel oder lokaler `.env`) gesteuert.
+- **🛡️ Rollenbasierte Zugriffskontrolle (RBAC)**:
+  - Rollen: `student` und `admin`.
+  - Passwörter werden mit `bcrypt` gehasht, Sitzungen mit sicheren JWT-Tokens verwaltet.
+- **⚙️ Vollständiges In-App Admin Panel**:
+  - **Fächer & Kurse verwalten**: Neue Fächer mit Modulen, Stufen und Semestern anlegen oder löschen.
+  - **Lernpfade bearbeiten**: Neue Abschnitte und Lektionen (Nummer, Titel, Beschreibung, XP, Lektion oder Meilenstein) konfigurieren.
+  - **Aufgaben & Quizfragen erstellen**: Fragen mit Thema, Fragetext, Hervorhebung, Antwortoptionen A, B, C und Auflösungserklärung anlegen.
+  - **Benutzerverwaltung**: Benutzer einsehen und mit 1 Klick zum Administrator ernennen oder zurückstufen.
 
-- **🐘 Neon Tech PostgreSQL Backend**:
-  - Vollständige SQL DDL Scripts (`01_schema.sql`, `02_seed.sql`, `03_views_and_functions.sql`, `init_all.sql`).
-  - Relationale Tabellen für Benutzer, Kurse, Lernpfad-Abschnitte, interaktive Quiz-Fragen, Pomodoro-Fokus-Sessions und Streaks.
-  - Stored Procedures für automatische Punktevergabe (XP), Streak-Zähler und Lernpfad-Freischaltungen.
-  - Unterstützt direkte Neon HTTP Serverless Queries sowie Offline-First Local-Storage-Fallback.
+---
 
-- **🎨 100% Google Stitch Design-Treue**:
-  - **Screen 1: Lerneinheit (Ultra-Minimal)** – Aktives Erinnern mit LTP Neurobiologie Frage, Multiple-Choice Auswahl, Bestätigungs-Feedback und XP-Belohnung.
-  - **Screen 2: Meine Kurse (Ultra-Minimal)** – Kursliste mit Filter-Pills ("Alle", "Aktiv", "Archiv", "Katalog"), Fortschrittsbalken und fälligen Karten ("8 Karten fällig").
-  - **Screen 3: Lernpfad: Mathematik (Ultra-Minimal)** – Stufenweise Abschnitte (Vektorrechnung 100%, Skalarprodukt 100%, Matrixmultiplikation aktiv, Determinanten gesperrt).
-  - **Screen 4: Kurse: Grundlagenfächer (Ultra-Minimal)** – Akademisches Portal mit Modulen für Höhere Mathematik I, Grundlagen der Informatik und Physik.
-  - **Screen 5: Study Timer (Ultra-Minimal)** – Pomodoro 25 min, Deep Work 50 min, Pause 5 min mit animiertem SVG-Zifferblatt, Intervall-Zähler und Nicht-Stören-Modus.
+## 🔑 Demo-Zugangsdaten (Sofort testbar)
+
+| Rolle | E-Mail | Passwort | Berechtigungen |
+|---|---|---|---|
+| **Administrator** | `admin@studyling.app` | `AdminPassword123!` | Voller Zugriff auf das Admin-Panel, Fächer, Lernpfade, Aufgaben & Rollen |
+| **Student** | `alex@studyling.app` | `Studyling2025!` | Standard-Lernzugriff, Kurse, Timer, Quiz & 12-Tage-Streak |
+
+> 💡 *Tipp:* Im Anmelde-Fenster gibt es praktische 1-Klick-Buttons (**„🔑 Als Admin“** und **„🎒 Als Student“**), um sich sofort ohne Tippen einzuloggen.
+
+---
+
+## 🚀 Hosting auf Vercel (1-Click Deployment)
+
+1. Repository auf GitHub mit Vercel verknüpfen: [https://github.com/The-duckling-Group/studyling](https://github.com/The-duckling-Group/studyling)
+2. Im Vercel Dashboard unter **Settings -> Environment Variables** folgende Variablen hinzufügen:
+   ```env
+   DATABASE_URL="postgresql://alex_study:passwort@ep-cool-cloud-123456.eu-central-1.aws.neon.tech/neondb?sslmode=require"
+   JWT_SECRET="studyling_production_jwt_secret_beliebiger_key"
+   ```
+3. Vercel führt den Build automatisch aus. Die Serverless Functions unter `/api/` verbinden sich mit Neon Tech, und die PWA unter `/public` wird global gecacht!
 
 ---
 
@@ -31,54 +47,38 @@ Vollständige Realisierung des **Google Stitch Projekts „Studyling Learning Pl
 
 ```text
 studyling-platform/
-├── database/
-│   ├── 01_schema.sql             # Tabellen, Constraints, Indizes, Triggers
-│   ├── 02_seed.sql               # Stitch-Demo-Datensatz (Alex M., Kurse, LTP-Quiz)
-│   ├── 03_views_and_functions.sql# Views & Stored Procedures (Quiz, Timer, Pfad)
-│   ├── init_all.sql              # Master-Skript für den Neon SQL Editor (900 Zeilen)
-│   └── README_NEON.md            # Detaillierte Neon Tech Einrichtungsanleitung
-├── public/
-│   ├── index.html                # PWA App Shell mit allen 5 Stitch-Screens
-│   ├── app.js                    # SPA Controller, Timer, Quiz & Audio-Engine
-│   ├── neon-client.js            # Neon PostgreSQL Bridge & State Store
+├── api/                          # Vercel Serverless Functions
+│   ├── _auth.js                  # JWT & Bcrypt Auth Helpers
+│   ├── _db.js                    # Neon Tech Serverless DB Client (DATABASE_URL)
+│   └── index.js                  # Unified API Handler (Auth, Courses, Path, Admin)
+├── database/                     # Neon Tech PostgreSQL Skripte
+│   ├── 01_schema.sql             # Tabellen mit Rollen (admin, student) & Constraints
+│   ├── 02_seed.sql               # Seed-Daten inkl. Admin- und Student-Accounts
+│   ├── 03_views_and_functions.sql# Stored Procedures für Quiz, Timer & Pfade
+│   ├── init_all.sql              # Master-Skript für den Neon SQL Editor
+│   └── README_NEON.md            # Neon Tech Einrichtungsanleitung
+├── public/                       # PWA Frontend Shell (Google Stitch Design)
+│   ├── index.html                # App Shell mit Admin-Panel & Auth-Modals
+│   ├── app.js                    # SPA Controller, Audio-Synthesizer, Admin-Logik
+│   ├── neon-client.js            # API-Client mit Auth-Header & Offline-Sync
 │   ├── styles.css                # Stitch Tailwind Styles & Material Symbols
 │   ├── manifest.json             # PWA Web App Manifest
-│   ├── sw.js                     # PWA Service Worker (Offline Cache & Sync)
+│   ├── sw.js                     # Service Worker für Offline-Caching
 │   └── icons/                    # App-Icons (SVG, 192px, 512px)
-├── server.js                     # Zero-Dependency Node.js Server & Neon Proxy
+├── stitch-designs/               # Original Google Stitch HTML-Referenzen
+├── server.js                     # Lokaler Entwicklungs-Server & API Proxy
+├── vercel.json                   # Vercel Serverless Routing-Konfiguration
+├── .env.example                  # Vorlage für Environment Variables
 ├── package.json
 └── README.md
 ```
 
 ---
 
-## 🚀 Schnellstart
-
-### 1. Server starten
+## 💻 Lokaler Start
 
 ```bash
 cd /home/eymen/.gemini/antigravity-cli/scratch/studyling-platform
 npm start
-# oder
-node server.js
 ```
-
-Öffne anschließend [http://localhost:3000](http://localhost:3000) im Browser.
-
-### 2. Neon Tech PostgreSQL verbinden
-
-1. Erstelle ein kostenloses Projekt auf [console.neon.tech](https://console.neon.tech).
-2. Öffne den **SQL Editor** in Neon und führe [init_all.sql](file:///home/eymen/.gemini/antigravity-cli/scratch/studyling-platform/database/init_all.sql) aus.
-3. Klicke in der Web-App oben rechts auf das Profil-Icon (`person`) und trage deinen Neon Connection String ein:
-   ```text
-   postgresql://alex_study:secret@ep-cool-cloud-123.eu-central-1.aws.neon.tech/neondb?sslmode=require
-   ```
-4. Klicke auf **"Testen"** und **"Speichern"**. Alle Aktionen (Quiz-Antworten, Timer-Sessions) werden ab sofort live in deiner Neon Tech Cloud-Datenbank gespeichert!
-
----
-
-## 📲 PWA Installation
-
-- **Google Chrome / Chromium / Edge**: In der URL-Leiste auf das Installations-Symbol oder in der App auf das Banner *"Studyling als App installieren"* klicken.
-- **Android**: Chrome-Menü -> *"App installieren"* bzw. *"Zum Startbildschirm hinzufügen"*.
-- **iOS Safari**: Teilen-Button (Viereck mit Pfeil nach oben) -> *"Zum Home-Bildschirm"*.
+Die App ist anschließend unter `http://localhost:3000` erreichbar.

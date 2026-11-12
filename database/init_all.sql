@@ -1,7 +1,7 @@
 -- ============================================================================
 -- Studyling Learning Platform - Neon Tech PostgreSQL Database Schema
 -- File: 01_schema.sql
--- Description: Core tables, constraints, indexes, and triggers for Neon Tech
+-- Description: Core tables, auth roles, constraints, indexes, and triggers
 -- ============================================================================
 
 -- Enable required extensions
@@ -25,12 +25,14 @@ DROP TABLE IF EXISTS user_streaks CASCADE;
 DROP TABLE IF EXISTS users CASCADE;
 
 -- ----------------------------------------------------------------------------
--- 1. Users Table
+-- 1. Users Table (with Authentication & Role-Based Access Control)
 -- ----------------------------------------------------------------------------
 CREATE TABLE users (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     username VARCHAR(50) NOT NULL UNIQUE,
     email VARCHAR(255) NOT NULL UNIQUE,
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(20) NOT NULL DEFAULT 'student' CHECK (role IN ('student', 'instructor', 'admin')),
     display_name VARCHAR(100) NOT NULL,
     avatar_url TEXT,
     streak_count INT NOT NULL DEFAULT 12 CHECK (streak_count >= 0),
@@ -57,7 +59,7 @@ CREATE TABLE user_streaks (
 );
 
 -- ----------------------------------------------------------------------------
--- 3. Courses Table (Matches Stitch designs: PSY-402, MTH-108, MTH-101, etc.)
+-- 3. Courses Table (Fächer)
 -- ----------------------------------------------------------------------------
 CREATE TABLE courses (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -65,7 +67,7 @@ CREATE TABLE courses (
     code_number VARCHAR(10) NOT NULL DEFAULT '01',   -- e.g. '01', '02', '03'
     title VARCHAR(150) NOT NULL,                     -- e.g. 'Kognitionspsychologie'
     subtitle TEXT,                                   -- e.g. 'Gedächtnismodelle & Exekutivfunktionen'
-    category VARCHAR(50) NOT NULL DEFAULT 'Basis-Fächer', -- 'Basis-Fächer', 'Vertiefung', 'Katalog'
+    category VARCHAR(50) NOT NULL DEFAULT 'Basis-Fächer', -- 'Basis-Fächer', 'Katalog', 'Archiv'
     semester VARCHAR(50) NOT NULL DEFAULT 'Sem. 1 / 2025', -- 'Q2 • 2025' or 'Sem. 1 / 2025'
     description TEXT,
     topics_summary TEXT,                             -- e.g. 'Analysis, Lineare Algebra, Vektoren'
@@ -74,6 +76,7 @@ CREATE TABLE courses (
     total_modules INT NOT NULL DEFAULT 8,
     color_accent VARCHAR(20) DEFAULT '#fdc425',
     is_core_curriculum BOOLEAN NOT NULL DEFAULT TRUE,
+    created_by UUID REFERENCES users(id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -94,7 +97,7 @@ CREATE TABLE user_course_enrollments (
 );
 
 -- ----------------------------------------------------------------------------
--- 5. Learning Path Sections (e.g. "Mathematik / Abschnitt 01 - Vektoren & Matrizen")
+-- 5. Learning Path Sections (Lernpfad-Abschnitte)
 -- ----------------------------------------------------------------------------
 CREATE TABLE learning_path_sections (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -102,14 +105,14 @@ CREATE TABLE learning_path_sections (
     section_index INT NOT NULL DEFAULT 1,
     section_tag VARCHAR(50) NOT NULL DEFAULT 'Abschnitt 01',
     title VARCHAR(150) NOT NULL,                     -- e.g. 'Vektoren & Matrizen'
-    description TEXT,                                -- e.g. 'Grundlagen der Linearen Algebra für ingenieur- und naturwissenschaftliche Studiengänge.'
+    description TEXT,                                -- e.g. 'Grundlagen der Linearen Algebra...'
     progress_pct INT NOT NULL DEFAULT 25 CHECK (progress_pct BETWEEN 0 AND 100),
     is_active BOOLEAN NOT NULL DEFAULT TRUE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- ----------------------------------------------------------------------------
--- 6. Learning Path Nodes / Units (01 Vektorrechnung, 02 Skalarprodukt, 03 Matrixmultiplikation, etc.)
+-- 6. Learning Path Nodes / Lessons (Lerneinheiten / Lektionen)
 -- ----------------------------------------------------------------------------
 CREATE TABLE learning_path_nodes (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -117,7 +120,7 @@ CREATE TABLE learning_path_nodes (
     order_index INT NOT NULL,                        -- 1, 2, 3, 4, 5
     node_number VARCHAR(10) NOT NULL,               -- '01', '02', '03', '04', '05'
     title VARCHAR(150) NOT NULL,                     -- e.g. 'Matrixmultiplikation'
-    description TEXT,                                -- e.g. 'Zeile mal Spalte & Dimensionen von Matrizen im euklidischen Raum.'
+    description TEXT,                                -- e.g. 'Zeile mal Spalte...'
     node_type VARCHAR(30) NOT NULL DEFAULT 'lesson' CHECK (node_type IN ('lesson', 'milestone', 'quiz', 'recap')),
     xp_reward INT NOT NULL DEFAULT 20 CHECK (xp_reward >= 0),
     default_status VARCHAR(20) NOT NULL DEFAULT 'locked' CHECK (default_status IN ('completed', 'current', 'locked')),
@@ -139,26 +142,27 @@ CREATE TABLE user_node_progress (
 );
 
 -- ----------------------------------------------------------------------------
--- 8. Quiz Questions (Matches Stitch screen 1: Active Recall & LTP Question)
+-- 8. Quiz Questions (Aufgaben & Fragen)
 -- ----------------------------------------------------------------------------
 CREATE TABLE quiz_questions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    node_id UUID REFERENCES learning_path_nodes(id) ON DELETE SET NULL,
-    course_id UUID REFERENCES courses(id) ON DELETE SET NULL,
+    node_id UUID REFERENCES learning_path_nodes(id) ON DELETE CASCADE,
+    course_id UUID REFERENCES courses(id) ON DELETE CASCADE,
     topic_tag VARCHAR(100) NOT NULL DEFAULT 'Neurobiologie',
     category VARCHAR(50) NOT NULL DEFAULT 'Aktives Erinnern',
     question_number INT NOT NULL DEFAULT 6,
     total_questions INT NOT NULL DEFAULT 10,
-    question_text TEXT NOT NULL,                     -- e.g. 'Welche Funktion erfüllt die Langzeitpotenzierung (LTP) im Hippocampus?'
-    highlight_phrase TEXT,                          -- e.g. 'Langzeitpotenzierung (LTP)'
+    question_text TEXT NOT NULL,
+    highlight_phrase TEXT,
     instruction TEXT DEFAULT 'Wähle die zutreffende Antwort',
     xp_reward INT NOT NULL DEFAULT 20,
     explanation TEXT,
+    created_by UUID REFERENCES users(id) ON DELETE SET NULL,
     created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 -- ----------------------------------------------------------------------------
--- 9. Quiz Options (A, B, C...)
+-- 9. Quiz Options
 -- ----------------------------------------------------------------------------
 CREATE TABLE quiz_options (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -183,7 +187,7 @@ CREATE TABLE user_quiz_attempts (
 );
 
 -- ----------------------------------------------------------------------------
--- 11. Study Timer Sessions (Matches Stitch screen 5: Pomodoro & Deep Work)
+-- 11. Study Timer Sessions
 -- ----------------------------------------------------------------------------
 CREATE TABLE study_timer_sessions (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -192,17 +196,17 @@ CREATE TABLE study_timer_sessions (
     mode VARCHAR(30) NOT NULL CHECK (mode IN ('pomodoro_25', 'deep_50', 'pause_5', 'custom')),
     interval_current INT NOT NULL DEFAULT 1,
     interval_total INT NOT NULL DEFAULT 4,
-    duration_seconds INT NOT NULL DEFAULT 1500,     -- 25 min = 1500 sec
+    duration_seconds INT NOT NULL DEFAULT 1500,
     elapsed_seconds INT NOT NULL DEFAULT 0,
     completed BOOLEAN NOT NULL DEFAULT FALSE,
-    dnd_active BOOLEAN NOT NULL DEFAULT TRUE,       -- Ablenkungsfreier Modus
+    dnd_active BOOLEAN NOT NULL DEFAULT TRUE,
     xp_reward INT NOT NULL DEFAULT 25,
     started_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
     completed_at TIMESTAMPTZ
 );
 
 -- ----------------------------------------------------------------------------
--- 12. Flashcard Decks & Cards (For "8 Karten fällig" feature)
+-- 12. Flashcard Decks & Cards
 -- ----------------------------------------------------------------------------
 CREATE TABLE flashcard_decks (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -232,8 +236,10 @@ CREATE TABLE flashcard_reviews (
 );
 
 -- ----------------------------------------------------------------------------
--- Indexes for High-Performance Queries in Neon Tech Serverless Postgres
+-- Indexes
 -- ----------------------------------------------------------------------------
+CREATE INDEX idx_users_role ON users(role);
+CREATE INDEX idx_users_email ON users(email);
 CREATE INDEX idx_user_streaks_user_date ON user_streaks(user_id, activity_date DESC);
 CREATE INDEX idx_enrollments_user_status ON user_course_enrollments(user_id, status);
 CREATE INDEX idx_courses_category ON courses(category);
@@ -269,31 +275,59 @@ FOR EACH ROW EXECUTE FUNCTION trigger_set_timestamp();
 -- ============================================================================
 -- Studyling Learning Platform - Neon Tech PostgreSQL Seed Data
 -- File: 02_seed.sql
--- Description: Realistic production demo data matching the Google Stitch designs
+-- Description: Realistic production demo data with Admin and Student users
 -- ============================================================================
 
 -- ----------------------------------------------------------------------------
--- 1. Insert Primary Demo User (Matches Stitch Header: Alex, 12 Streak, 1420 XP)
+-- 1. Insert Admin User
+-- Email: admin@studyling.app | Password: AdminPassword123! | Role: admin
 -- ----------------------------------------------------------------------------
 INSERT INTO users (
-    id, username, email, display_name, avatar_url,
+    id, username, email, password_hash, role, display_name, avatar_url,
+    streak_count, total_xp, level, study_time_today_minutes
+) VALUES (
+    'a1111111-aaaa-bbbb-cccc-111111111111',
+    'admin',
+    'admin@studyling.app',
+    '$2b$10$PBOjLNBrYik45ahHFmfkOO8vXeu7T8RMhhbi05B5ULGsB1PWoE0dC',
+    'admin',
+    'Studyling Admin',
+    'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=128&q=80',
+    42,
+    5800,
+    10,
+    90
+) ON CONFLICT (email) DO UPDATE SET
+    role = 'admin',
+    password_hash = EXCLUDED.password_hash;
+
+-- ----------------------------------------------------------------------------
+-- 2. Insert Primary Demo Student User (Alex M.)
+-- Email: alex@studyling.app | Password: Studyling2025! | Role: student
+-- ----------------------------------------------------------------------------
+INSERT INTO users (
+    id, username, email, password_hash, role, display_name, avatar_url,
     streak_count, total_xp, level, study_time_today_minutes
 ) VALUES (
     'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11',
     'alex_study',
     'alex@studyling.app',
+    '$2b$10$At7wq9N6bjBvfrZLlSDS3OiqZXPnn5xdfXiblJtvPpALl9Tq6eMam',
+    'student',
     'Alex M.',
     'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=128&q=80',
     12,
     1420,
     4,
     45
-) ON CONFLICT (id) DO UPDATE SET
+) ON CONFLICT (email) DO UPDATE SET
+    role = 'student',
     streak_count = EXCLUDED.streak_count,
-    total_xp = EXCLUDED.total_xp;
+    total_xp = EXCLUDED.total_xp,
+    password_hash = EXCLUDED.password_hash;
 
 -- ----------------------------------------------------------------------------
--- 2. Insert User Streaks History (Last 12 Days)
+-- 3. Insert User Streaks History (Last 12 Days for Alex M.)
 -- ----------------------------------------------------------------------------
 INSERT INTO user_streaks (user_id, activity_date, sessions_completed, xp_gained, minutes_studied)
 VALUES
@@ -312,7 +346,7 @@ VALUES
 ON CONFLICT (user_id, activity_date) DO NOTHING;
 
 -- ----------------------------------------------------------------------------
--- 3. Insert Courses (Matching Stitch Screen 2 & Screen 4)
+-- 4. Insert Courses (Matching Stitch Screen 2 & Screen 4)
 -- ----------------------------------------------------------------------------
 -- Course 1: Kognitionspsychologie (01 / PSY-402)
 INSERT INTO courses (
@@ -447,7 +481,7 @@ INSERT INTO courses (
 ) ON CONFLICT (code) DO NOTHING;
 
 -- ----------------------------------------------------------------------------
--- 4. Enrollments for Alex M.
+-- 5. Enrollments for Alex M.
 -- ----------------------------------------------------------------------------
 INSERT INTO user_course_enrollments (user_id, course_id, status, progress_pct, cards_due_count)
 VALUES
@@ -461,7 +495,7 @@ ON CONFLICT (user_id, course_id) DO UPDATE SET
     cards_due_count = EXCLUDED.cards_due_count;
 
 -- ----------------------------------------------------------------------------
--- 5. Learning Path: Mathematik / Abschnitt 01 - Vektoren & Matrizen (Screen 3)
+-- 6. Learning Path: Mathematik / Abschnitt 01 - Vektoren & Matrizen
 -- ----------------------------------------------------------------------------
 INSERT INTO learning_path_sections (
     id, course_id, section_index, section_tag, title, description, progress_pct
@@ -499,9 +533,9 @@ ON CONFLICT (user_id, node_id) DO UPDATE SET
     score_pct = EXCLUDED.score_pct;
 
 -- ----------------------------------------------------------------------------
--- 6. Quiz Questions & Options (Matching Screen 1: Lerneinheit LTP)
+-- 7. Quiz Questions & Options (Matching Screen 1: Lerneinheit LTP)
 -- ----------------------------------------------------------------------------
--- Question 1: LTP im Hippocampus (Exact match from Stitch Screen 1)
+-- Question 1: LTP im Hippocampus
 INSERT INTO quiz_questions (
     id, node_id, course_id, topic_tag, category,
     question_number, total_questions, question_text, highlight_phrase,
@@ -528,7 +562,7 @@ VALUES
     ('o3333333-3333-3333-3333-333333333333', 'q1111111-1111-1111-1111-111111111111', 'C', 'Inaktivierung von Neurotransmitter-Rezeptoren.', FALSE, 3)
 ON CONFLICT DO NOTHING;
 
--- Question 2: Matrixmultiplikation Kompatibilität (Mathematik Lerneinheit)
+-- Question 2: Matrixmultiplikation
 INSERT INTO quiz_questions (
     id, node_id, course_id, topic_tag, category,
     question_number, total_questions, question_text, highlight_phrase,
@@ -583,7 +617,7 @@ VALUES
 ON CONFLICT DO NOTHING;
 
 -- ----------------------------------------------------------------------------
--- 7. Flashcards for "8 Karten fällig" (MTH-108 Statistik)
+-- 8. Flashcards for "8 Karten fällig" (MTH-108 Statistik)
 -- ----------------------------------------------------------------------------
 INSERT INTO flashcard_decks (id, course_id, title, description)
 VALUES (
@@ -606,7 +640,7 @@ VALUES
 ON CONFLICT DO NOTHING;
 
 -- ----------------------------------------------------------------------------
--- 8. Study Timer Session History
+-- 9. Study Timer Session History
 -- ----------------------------------------------------------------------------
 INSERT INTO study_timer_sessions (
     user_id, course_id, mode, interval_current, interval_total,
